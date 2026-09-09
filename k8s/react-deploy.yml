@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: react-deploy
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      web: react
+  template:
+    metadata:
+      labels:
+        web: react
+    spec:
+      containers:
+        - name: react
+          image: aarushtechnologies/online-front:v2
+          ports:
+            - containerPort: 3000

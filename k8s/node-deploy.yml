@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-deploy
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      web: node
+  template:
+    metadata:
+      labels:
+        web: node
+    spec:
+      containers:
+        - name: node
+          image: aarushtechnologies/online-back:v1
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: node-config
