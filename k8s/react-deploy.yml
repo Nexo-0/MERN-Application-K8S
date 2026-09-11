@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
         - name: react
-          image: aarushtechnologies/online-front:v2
+          image: aarushtechnologies/online-front:v4
           ports:
             - containerPort: 3000

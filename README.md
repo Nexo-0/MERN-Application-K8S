@@ -36,3 +36,4 @@
 
 6 directories, 27 files
 [ec2-user@ip-172-31-45-76 college]$ 
+# MERN-Application-K8S

@@ -22,12 +22,26 @@ if (!MONGO_URI) {
 // MongoDB Schema
 const userSchema = new mongoose.Schema(
   {
-    name: String,
-    age: Number,
-    city: String
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    age: {
+      type: Number,
+      required: true,
+    },
+
+    city: {
+      type: String,
+      required: true,
+      trim: true,
+    },
   },
   {
-    collection: "users"
+    collection: "users",
+    timestamps: true,
   }
 );
 
@@ -36,14 +50,14 @@ const User = mongoose.model("User", userSchema);
 // Health check
 app.get("/", (req, res) => {
   res.json({
-    message: "Node.js server is running"
+    message: "Node.js server is running",
   });
 });
 
-// Get all users
+// GET - Get all users
 app.get("/api/users", async (req, res) => {
   try {
-    const users = await User.find();
+    const users = await User.find().sort({ createdAt: -1 });
 
     res.status(200).json(users);
   } catch (error) {
@@ -51,7 +65,72 @@ app.get("/api/users", async (req, res) => {
 
     res.status(500).json({
       message: "Failed to fetch users",
-      error: error.message
+      error: error.message,
+    });
+  }
+});
+
+// POST - Create new user
+app.post("/api/users", async (req, res) => {
+  try {
+    const { name, age, city } = req.body;
+
+    // Validation
+    if (!name || !age || !city) {
+      return res.status(400).json({
+        message: "Name, age and city are required",
+      });
+    }
+
+    const newUser = new User({
+      name,
+      age,
+      city,
+    });
+
+    const savedUser = await newUser.save();
+
+    res.status(201).json(savedUser);
+  } catch (error) {
+    console.error("Error creating user:", error);
+
+    res.status(500).json({
+      message: "Failed to create user",
+      error: error.message,
+    });
+  }
+});
+
+// DELETE - Delete user
+app.delete("/api/users/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Check valid MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        message: "Invalid user ID",
+      });
+    }
+
+    const deletedUser = await User.findByIdAndDelete(id);
+
+    if (!deletedUser) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      message: "User deleted successfully",
+      user: deletedUser,
+    });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+
+    res.status(500).json({
+      message: "Failed to delete user",
+      error: error.message,
     });
   }
 });
@@ -61,7 +140,7 @@ async function startServer() {
   try {
     await mongoose.connect(MONGO_URI);
 
-    console.log("Connected to MongoDB replica set");
+    console.log("Connected to MongoDB");
 
     app.listen(PORT, "0.0.0.0", () => {
       console.log(`Server running on port ${PORT}`);
@@ -73,3 +152,4 @@ async function startServer() {
 }
 
 startServer();
+

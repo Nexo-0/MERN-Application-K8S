@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: node
-          image: aarushtechnologies/online-back:v1
+          image: aarushtechnologies/online-back:v2
           ports:
             - containerPort: 3000
           envFrom:
